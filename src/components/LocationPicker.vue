@@ -22,8 +22,8 @@ Pi<template>
 
       <ion-searchbar @ionInput="(e) => (place =( e.target.value as string))" placeholder="entrez..."
         @keyup.enter="get_quart()"></ion-searchbar>
-      <div style="display: flex; justify-content: space-around; width: 100%; padding: 0rem .7rem; " >
-        <button style="padding: .7rem; text-align: center; width: 100%; border-radius: 10px; font-size: 1.1rem; " class="demande">Rechercher</button>
+      <div v-show="false" style="display: flex; justify-content: space-around; width: 100%; padding: 0rem .7rem; " >
+        <button @click="get_quart()" style="padding: .7rem; text-align: center; width: 100%; border-radius: 10px; font-size: 1.1rem; " class="demande">Rechercher</button>
       </div>
       <div v-if="place == ''">
         <div style="
@@ -67,8 +67,8 @@ Pi<template>
       </div>
       <div v-if="quarts.length" style="padding-top: 1rem">
         <ion-item v-for="q in quarts" :key="`${q.name}:${q.lat}`" @click.stop="includes_quart(q)" button>
-          <ion-checkbox :checked="q.name == quart.name && q.lat == quart.lat && q.lng == quart.lng
-            " slot="start"></ion-checkbox>
+          <ion-checkbox @click.prevent="" :checked="q.name == quart.name && q.lat == quart.lat && q.lng == quart.lng
+            "  slot="start"></ion-checkbox>
           <ion-label class="ion-text-wrap">{{ q.name }}</ion-label>
           <ion-avatar slot="end">
             <img :alt="q.name" :src="q.icon" />

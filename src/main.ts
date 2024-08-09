@@ -29,7 +29,10 @@ import axios from 'axios';
 //import './output.css'
 /*import './tailwind.css'*/
 
-axios.defaults.baseURL = "http://localhost:8080/"
+//axios.defaults.baseURL = "http://localhost:8080/"
+//axios.defaults.baseURL = "http://192.168.43.244:8080/"
+axios.defaults.baseURL = "https://backend-travelvibes.onrender.com/"
+
 const app = createApp(App)
   .use(IonicVue)
   .use(router);

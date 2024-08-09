@@ -13,7 +13,7 @@
             </div>
         </div>
         <div style="display: flex; align-items: center;">
-            <button
+            <button @click="router.push('/aide')"
                 style="display: flex;align-items: center;padding: .2rem .9rem; padding-left: .8rem; padding-top: .4rem !important; border-radius: 15px;  font-size: 1.1rem; "
                 class="aide">
                 <div style="font-size: 1.3rem;"></div>
@@ -36,5 +36,8 @@
 <script lang="ts" setup>
 import { IonIcon } from "@ionic/vue"
 import { alertCircle, alertCircleOutline, notificationsOutline } from "ionicons/icons"
+import { useRouter } from "vue-router";
+
+const router = useRouter()
 
 </script>

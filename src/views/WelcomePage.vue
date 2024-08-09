@@ -30,11 +30,19 @@
 
 </template>
 <script setup lang="ts">
+import { get_obj } from '@/global/utils';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
 
 import { bodyOutline, caretDownOutline, chevronDownOutline, flash, flashOffOutline, flashOutline, personOutline, search, star } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
+
+const is_authenticated = async () => {
+    const tokens = await get_obj('tokens')
+    if(tokens) router.push('/tabs/')
+}
+
+is_authenticated()
 
 </script>

@@ -1,5 +1,7 @@
 {
-  "name": "ionic-app-base",
-  "integrations": {},
+  "name": "Vroom",
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "vue-vite"
 }

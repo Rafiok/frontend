@@ -22,12 +22,12 @@
                     class="s_input">
                     <div>
                         <div style="font-size: .6rem; color: black;">Mot de passe</div>
-                        <input type="password" v-model="password" required
+                        <input :type="input_typ" v-model="password" required
                             style="padding: .4rem 0rem; font-size: .9rem; color: black; width: 100%; background-color: transparent; border: none; box-sizing: border-box;"
                             placeholder="ecrivez...">
                     </div>
-                    <div style="font-size: 1.4rem;">
-                        <ion-icon :icon="eyeOff"></ion-icon>
+                    <div @click="input_typ = (input_typ == 'password' ? 'text' : 'password')" style="font-size: 1.4rem;">
+                        <ion-icon :icon="input_typ == 'password' ? eye : eyeOff"></ion-icon>
                     </div>
                 </div>
                 <div style="padding: 1rem; display: flex; justify-content: center;">
@@ -64,11 +64,12 @@ import router from '@/router';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
 import axios from 'axios';
 
-import { bodyOutline, call, caretDownOutline, chevronDownOutline, eyeOff, flash, flashOffOutline, flashOutline, images, personOutline, search, star } from 'ionicons/icons';
+import { bodyOutline, call, caretDownOutline, chevronDownOutline, eye, eyeOff, flash, flashOffOutline, flashOutline, images, personOutline, search, star } from 'ionicons/icons';
 import { ref } from 'vue';
 
 const ident = ref('')
 const password = ref('')
+const input_typ = ref('password')
 
 const connect = async () => {
     if (!isValidEmailOrPhone(ident.value)) {
@@ -79,11 +80,11 @@ const connect = async () => {
     if (password.value.length < 8) {
         return await show_alert('', "Le mot de passe doit etre d'au moins 8 caractères")
     }
-    const load = await showLoading('Patientez....')
+    const load = await showLoading('Connexion....')
 
     try {
         const resp = await axios.post('token/', {
-            ident: ident.value,
+            username: ident.value,
             password: password.value
         })
         await store_obj('tokens', JSON.stringify(resp.data))

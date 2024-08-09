@@ -106,74 +106,47 @@ export const show_warn = async (title: string, mess: string, oktext: string, han
 export const access_tok = async (router: Router, load: HTMLIonLoadingElement | undefined) => {
     const token: string | undefined = await get_obj('tokens')
     if (!token) {
-        if (load) load.dismiss();
-        let idents = await get_obj('ksjfniusfgiunsfjnfsin')
-                        
-                        idents = JSON.parse(idents);
-                        
-                        if (idents) {
-                            const { username, password } = idents
-                            try {
-                                const resp = await axios.post('token/', {
-                                    username,
-                                    password
-                                })
-                                store_obj('tokens', JSON.stringify(resp.data))
-                                return resp.data['access'] as string
-                            } catch(e) {
-                                console.log(e)
-                            }
-                        }
-        return router.push(`/login`)
+        load?.dismiss()
+        return router.push('/login')
     }
     else {
         const json_tok = JSON.parse(token)
-        try {
-            const resp = await axios({
-                url: 'api/ping',
-                method: 'HEAD',
-                headers: {
-                    Authorization: `Bearer ${json_tok.access}`
-                },
-            })
-            return json_tok.access as string
-        } catch (err: any) {
-            if (err.response.status == 401) {
-                const form = new FormData()
-                form.append('refresh', json_tok.refresh)
-                try {
-                    const refresh_res = await axios({
-                        url: 'token/refresh/',
-                        method: 'POST',
-                        data: form
-                    })
-                    json_tok.access = refresh_res.data['access']
-                    store_obj('tokens', JSON.stringify(json_tok))
-                    return refresh_res.data['access'] as string
-                } catch (err: any) {
-                    if (err.response.status == 401) {
-                        let idents = await get_obj('ksjfniusfgiunsfjnfsin')
-                        
-                        idents = JSON.parse(idents);
-                        
-                        if (idents) {
-                            const { username, password } = idents
-                            try {
-                                const resp = await axios.post('token/', {
-                                    username,
-                                    password
-                                })
-                                store_obj('tokens', JSON.stringify(resp.data))
-                                return resp.data['access'] as string
-                            } catch(e) {
-                                console.log(e)
-                            }
-                        }
-                    }
-                    return router?.push(`/login`)
-                }
-            }
-        }
+        return json_tok.access;
+        
     }
 }
 
+export const dayOfWeek = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+
+export const toVoyTime = (time : string) => {
+    const date = new Date(time)
+    
+    return `${dayOfWeek[date.getDay()]} ${(date.getDate() < 10 ? '0' : '') + date.getDate()}/${date.getFullYear()} à ${( date.getHours() < 10 ? '0' : '') + date.getHours()}:${( date.getMinutes() < 10 ? '0' : '') + date.getMinutes()}`
+}
+
+export const get_details = async (key : string) => {
+    const load = await showLoading('Patientez...')
+    const resp = await axios.post('api/get_details/', {
+        key
+    })
+    
+    load.dismiss()
+    return resp.data['result']
+}
+
+export function scroll_bot(id: string) {
+    const elt = document.getElementById(id)
+
+    if (elt) {
+        elt.scrollTop = elt.scrollHeight - elt.clientHeight
+    }
+}
+
+export function isScrolled(id: string) {
+    const elt = document.getElementById(id)
+
+    if (elt) {
+        return elt.scrollHeight - elt.scrollTop <= elt.clientHeight + 75
+    }
+    return false
+}

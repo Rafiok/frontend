@@ -3,7 +3,7 @@
 
         <ion-content :fullscreen="true">
             <div style="padding: .0rem .6rem;">
-                <button
+                <button @click="router.back()"
                     style="width: 3rem; height: 3rem; min-width: 3rem;border-radius: 15px; font-size: 1.3rem; color: gray; background-color: transparent; ">
                     <ion-icon :icon="chevronBack"
                         style="position: relative; top: .15rem; right: .12rem; font-size: 2rem;"></ion-icon>
@@ -15,29 +15,15 @@
             </div>
             <div style="width: 100%;padding: 1rem 0rem; ">
                 <ion-accordion-group>
-                    <ion-accordion value="first">
+                    <ion-accordion v-for="aid in aides" :key="aid" :value="aid.question">
                         <ion-item slot="header">
-                            <ion-label>
-                                First Accodeon
+                            <ion-label  >
+                                {{ aid.question }}
                             </ion-label>
                         </ion-item>
-                        <div class="ion-padding" slot="content">First content</div>
-                    </ion-accordion>
-                    <ion-accordion value="second">
-                        <ion-item slot="header">
-                            <ion-label>
-                                Second Accodeon
-                            </ion-label>
-                        </ion-item>
-                        <div class="ion-padding" slot="content">Second content</div>
-                    </ion-accordion>
-                    <ion-accordion value="third">
-                        <ion-item slot="header">
-                            <ion-label>
-                                Third Accodeon
-                            </ion-label>
-                        </ion-item>
-                        <div class="ion-padding" slot="content">third content</div>
+                        <div class="ion-padding" slot="content" v-html="aid.answer" >
+                            
+                        </div>
                     </ion-accordion>
                 </ion-accordion-group>
             </div>
@@ -76,4 +62,15 @@ import HeaderComponent from '@/components/HeaderComponent.vue'
 import { alarm, location, search, arrowForward, paperPlane, chevronBack } from "ionicons/icons";
 import LocationPicker from "@/components/LocationPicker.vue";
 import { ref } from "vue";
+import { get_details } from "@/global/utils";
+import router from "@/router";
+
+const aides = ref<any[]>([])
+
+const get_aides = async () => {
+    aides.value = await get_details('aides')
+}
+
+get_aides()
+
 </script>

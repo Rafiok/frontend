@@ -41,6 +41,10 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/RoomPage.vue')
   },
   {
+    path: '/mypub',
+    component: () => import('@/views/MyPubPage.vue')
+  },
+  {
     path: '/test',
     component: () => import('@/views/TestPage.vue')
   },

@@ -26,12 +26,13 @@
                         class="s_input">
                         <div>
                             <div style="font-size: .6rem; color: black;">Mot de passe</div>
-                            <input type="password" v-model="password" required
+                            <input :type="input_typ" v-model="password" required
                                 style="padding: .4rem 0rem; font-size: .9rem; color: black; width: 100%; background-color: transparent; border: none; box-sizing: border-box;"
                                 placeholder="ecrivez...">
                         </div>
-                        <div style="font-size: 1.4rem;">
-                            <ion-icon :icon="eyeOff"></ion-icon>
+                        <div @click="input_typ = (input_typ == 'password' ? 'text' : 'password')"
+                            style="font-size: 1.4rem;">
+                            <ion-icon :icon="input_typ == 'password' ? eye : eyeOff"></ion-icon>
                         </div>
                     </div>
 
@@ -100,7 +101,7 @@
                 </div>
             </div>
             <div style="display: none;">
-                <input type="file" accept="image/*" id="photo_input" @change="charge_file"  />
+                <input type="file" accept="image/*" id="photo_input" @change="charge_file" />
             </div>
         </ion-content>
     </ion-page>
@@ -120,18 +121,19 @@
 }
 </style>
 <script setup lang="ts">
-import { isValidEmailOrPhone, showLoading, show_alert } from '@/global/utils';
+import { isValidEmailOrPhone, showLoading, show_alert, store_obj } from '@/global/utils';
+import router from '@/router';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
 import axios from 'axios';
 
-import { arrowForward, bodyOutline, call, camera, caretDownOutline, chevronDownOutline, eyeOff, flash, flashOffOutline, flashOutline, images, maleFemale, person, personOutline, search, star } from 'ionicons/icons';
+import { arrowForward, bodyOutline, call, camera, caretDownOutline, chevronDownOutline, eye, eyeOff, flash, flashOffOutline, flashOutline, images, maleFemale, person, personOutline, search, star } from 'ionicons/icons';
 import { computed, ref } from 'vue';
 const ident = ref('')
 const password = ref('')
 const isValid = ref(false)
 
 const img = ref({
-    id: 0, 
+    id: 0,
     url: ''
 })
 const name = ref('')
@@ -144,7 +146,7 @@ const get_img = computed(() => {
 const go_forward = async () => {
     if (!isValid.value) {
         if (!isValidEmailOrPhone(ident.value)) {
-            return await show_alert('', "veuillez entrer un nom d'utilisation correcte avant de continuer")
+            return await show_alert('Email ou Téléphone incorrecte', "Veuillez entrer un email ou un numéro de téléphone correcte avant de continuer")
 
         }
 
@@ -154,32 +156,89 @@ const go_forward = async () => {
         isValid.value = true
     }
 
+    else {
+        await register_user()
+    }
+
 
 }
 
 const click_id = (id: string) => {
-  document.getElementById(id)?.click()
+    document.getElementById(id)?.click()
 }
+
+const input_typ = ref('password')
 
 const charge_file = async (event: any) => {
     const load = await showLoading("Patientez...")
 
     const form = new FormData()
     form.append('file', event.target.files[0])
-
     try {
-        const resp = await axios.post('api/charge_file', form, {
-        headers: {
-            "Content-Type": "multipart/form-data"
-        }
-    })
+        const resp = await axios.post('api/charge_file/', form, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
 
-    if (resp.data['done']) img.value = resp.data['result']
+        if (resp.data['done']) img.value = resp.data['result']
 
     } catch (error) {
-        await show_alert('',"Une erreur est survenue l'ors du chargement du fichier, veuillez réessayer")
+        await show_alert('', "Une erreur est survenue l'ors du chargement du fichier, veuillez réessayer")
     }
-    load.dismiss
+    load.dismiss()
+}
+
+const connect = async () => {
+    if (!isValidEmailOrPhone(ident.value)) {
+        return await show_alert('Email ou Téléphone incorrecte', "veuillez entrer un nom d'utilisation correcte avant de continuer");
+    }
+
+    if (password.value.length < 8) {
+        return await show_alert('', "Le mot de passe doit etre d'au moins 8 caractères")
+    }
+    const load = await showLoading('Connexion....')
+
+    try {
+        const resp = await axios.post('token/', {
+            username: ident.value,
+            password: password.value
+        })
+        await store_obj('tokens', JSON.stringify(resp.data))
+        load.dismiss()
+        router.push('/tabs/');
+
+    } catch (error) {
+        load.dismiss()
+        await show_alert('Erreur de connexion', "Une erreur est survenue lors de la connexion, veuillez verifier vos identifiants.")
+    }
+}
+
+const register_user = async () => {
+
+
+    const load = await showLoading("Inscription...")
+
+    try {
+        const resp = await axios.post('api/register_user/', {
+            ident: ident.value,
+            password: password.value,
+            name: name.value,
+            sex: sex.value,
+            img: img.value.id
+        })
+
+        if (resp.data['done']) {
+            load.dismiss()
+            await connect()
+        } else {
+            load.dismiss()
+            await show_alert('Compte existant', "Les identifiants ont déjà été utilisé pour un autre compte.")
+        }
+    } catch (e) {
+        load.dismiss()
+        await show_alert('', "Une erreur est survenue, veuillez réessayer plus tard.")
+    }
 }
 
 </script>
